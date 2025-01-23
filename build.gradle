@@ -26,6 +26,25 @@ dependencies {
 	implementation 'org.springframework.amqp:spring-rabbit-stream'
 	implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
+    implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
+	implementation 'javax.servlet:javax.servlet-api:4.0.1'
+	implementation 'org.docx4j:docx4j:11.2.6'
+    implementation 'org.docx4j:docx4j-jaxb-impl:3.0.0'
+	implementation 'org.docx4j:docx4j:2.8.0'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.apache.poi:poi:5.2.3'
+	
+    
+}
+
+	
+
+	
+}
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters"
 }
 
 tasks.named('test') {
