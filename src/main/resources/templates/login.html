@@ -14,7 +14,7 @@
 
 <div class="login-container w3-card w3-white">
     <h2 class="login-title w3-text-black">Login</h2>
-    <form method="post" action="/authenticate">
+    <form id="login" method="post" action="/users/sign-in">
         <div class="w3-section">
             <label for="username"><i class="fa fa-user w3-margin-right"></i> Username</label>
             <input class="w3-input w3-border" type="text" id="username" name="username" placeholder="Enter your username" required>
@@ -23,12 +23,29 @@
             <label for="password"><i class="fa fa-lock w3-margin-right"></i> Password</label>
             <input class="w3-input w3-border" type="password" id="password" name="password" placeholder="Enter your password" required>
         </div>
-        <button type="submit" class="w3-button w3-green w3-button-custom"><i class="fa fa-sign-in w3-margin-right"></i>Login</button>
+        <button type="submit" class="w3-button w3-gray w3-button-custom"><i class="fa fa-sign-in w3-margin-right"></i>Login</button>
     </form>
     <div class="register-link">
         <p>Not registered? <a href="/register">Create an account</a></p>
     </div>
 </div>
-
+<script>
+	document.getElementById('login').addEventListener('submit', function(event) {
+	    event.preventDefault();
+	    const formData = new FormData(this);
+	
+	    fetch(this.action, {
+	        method: 'POST',
+	        body: formData
+	    })
+	    .then(response => response.text())
+	    .then(message => {
+	    	window.alert(message);
+	    	if(message === "Signed in successfully") {
+	    		window.location.href = "/";
+	    	}
+	    });
+	});
+</script>
 </body>
 </html>

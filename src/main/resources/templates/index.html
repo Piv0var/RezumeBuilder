@@ -18,14 +18,17 @@
       <i class="fa fa-bars"></i>
     </a>
     <a href="#home" class="w3-bar-item w3-button">HOME</a>
-    <a href="/login" class="w3-bar-item w3-button w3-hide-small w3-right">LOGIN</a>
-    <a href="/register" class="w3-bar-item w3-button w3-hide-small w3-right">REGISTER</a>
+    <!-- These buttons will be shown or hidden based on JWT token presence -->
+    <a id="user-name" href="/users/sign-out" class="w3-bar-item w3-button w3-hide-small w3-right"></a>
+    <a id="login-link" href="/login" class="w3-bar-item w3-button w3-hide-small w3-right">LOGIN</a>
+    <a id="register-link" href="/register" class="w3-bar-item w3-button w3-hide-small w3-right">REGISTER</a>
   </div>
 
   <!-- Navbar on small screens -->
   <div id="navDemo" class="w3-bar-block w3-gray w3-hide w3-hide-large w3-hide-medium">
-    <a href="/login" class="w3-bar-item w3-button" onclick="toggleFunction()">LOGIN</a>
-    <a href="/register" class="w3-bar-item w3-button" onclick="toggleFunction()">REGISTER</a>
+  	<a id="user-name-small" href="/users/sign-out" class="w3-bar-item w3-button" onclick="toggleFunction()"></a>
+    <a id="login-link-small" href="/login" class="w3-bar-item w3-button" onclick="toggleFunction()">LOGIN</a>
+    <a id="register-link-small" href="/register" class="w3-bar-item w3-button" onclick="toggleFunction()">REGISTER</a>
   </div>
 </div>
 
@@ -39,7 +42,6 @@
         <em>Create resume</em>
     </a>
 </div>
-
 </div>
 
 <!-- Container (About Section) -->
@@ -50,47 +52,94 @@
   <p class="w3-center"><em>Customizable</em></p>
   <p class="w3-center">Personalize your resume to fit your style.</p>
   <p class="w3-center"><em>Downloadable</em></p>
-  <p class="w3-center">Export your resume in PDF or Word format.</p>
+  <p class="w3-center">Export your resume in PDF format.</p>
 </div>
 
 <!-- Footer -->
 <footer class="w3-center w3-black w3-padding-64 w3-opacity w3-hover-opacity-off">
   <a href="#home" class="w3-button w3-light-grey"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
-  <p>&copy; 2024 Resume Builder. All rights reserved.</p>
+  <p>&copy; 2025 Resume Builder. All rights reserved.</p>
 </footer>
  
 <script>
-// Modal Image Gallery
-function onClick(element) {
-  document.getElementById("img01").src = element.src;
-  document.getElementById("modal01").style.display = "block";
-  var captionText = document.getElementById("caption");
-  captionText.innerHTML = element.alt;
+document.getElementById('user-name').addEventListener('click', function(event) {
+    event.preventDefault();
+
+    fetch("/users/sign-out", {
+        method: 'GET'
+    })
+    .then(response => response.text())
+    .then(message => {
+        window.alert(message);
+        if (message === "Signed out successfully") {
+            window.location.href = "/";
+        }
+    });
+});
+// Function to check if JWT token exists and is valid
+function checkAuth() {
+  const token = getCookie('jwt');
+  if (token) {
+    const userName = parseJwt(token).sub; // Assuming email is the subject
+    document.getElementById('user-name').style.display = 'block';
+    document.getElementById('user-name').textContent = userName;
+    document.getElementById('user-name-small').style.display = 'block';
+    document.getElementById('user-name-small').textContent = userName;
+    document.getElementById('login-link').style.display = 'none';
+    document.getElementById('register-link').style.display = 'none';
+    document.getElementById('login-link-small').style.display = 'none';
+    document.getElementById('register-link-small').style.display = 'none';
+  } else {
+  	document.getElementById('user-name').style.display = 'none';
+  	document.getElementById('user-name-small').style.display = 'none';
+    document.getElementById('login-link').style.display = 'block';
+    document.getElementById('register-link').style.display = 'block';
+    document.getElementById('login-link-small').style.display = 'block';
+    document.getElementById('register-link-small').style.display = 'block';
+  }
 }
 
-// Change style of navbar on scroll
-window.onscroll = function() {myFunction()};
-function myFunction() {
-    var navbar = document.getElementById("myNavbar");
-    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
-        navbar.className = "w3-bar" + " w3-card" + " w3-animate-top" + " w3-black" + " w3-opacity-min";
-    } else {
-        navbar.className = navbar.className.replace(" w3-card w3-animate-top w3-black w3-opacity-min", "");
-    }
+// Function to parse JWT token
+function parseJwt(token) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace('-', '+').replace('_', '/');
+  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+  return JSON.parse(jsonPayload);
 }
+
+// Function to get cookie by name
+function getCookie(name) {
+  var value = '; ' + document.cookie;
+  console.log(document.cookie);
+  var parts = value.split('; ' + name + '=');
+  console.log("parts = " + parts.length);
+  var token = parts.pop().split(';').shift();
+  console.log(token);
+  if (parts.length === 1) return token;
+  return null;
+}
+
+// Sign out the user
+function signOut() {
+  document.cookie = "jwt=; Max-Age=0; path=/"; // Delete the JWT token cookie
+  window.location.reload(); // Reload the page to reflect changes
+}
+
+// Run the checkAuth function on page load
+window.onload = checkAuth;
 
 // Used to toggle the menu on small screens when clicking on the menu button
 function toggleFunction() {
-    var x = document.getElementById("navDemo");
-    if (x.className.indexOf("w3-show") == -1) {
-        x.className += " w3-show";
-    } else {
-        x.className = x.className.replace(" w3-show", "");
-    }
+  var x = document.getElementById("navDemo");
+  if (x.className.indexOf("w3-show") == -1) {
+    x.className += " w3-show";
+  } else {
+    x.className = x.className.replace(" w3-show", "");
+  }
 }
 </script>
 
 </body>
 </html>
-
-

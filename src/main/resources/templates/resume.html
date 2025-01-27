@@ -8,78 +8,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
-    
     <link rel="stylesheet" href="resume.css">
-    
-    <script>
-        // Функция для проверки заполнения обязательных полей
-        function checkRequiredFields() {
-            const requiredFields = [
-                document.getElementById('full-name'),
-                document.getElementById('email'),
-                document.getElementById('phone'),
-                document.getElementById('address'),
-                document.getElementById('summary'),
-                document.getElementById('experience'),
-                document.getElementById('education'),
-                document.getElementById('skills')
-            ];
-
-            const generateButton = document.querySelector('.submit-btn button');
-            const allFilled = requiredFields.every(field => field.value.trim() !== '');
-            generateButton.disabled = !allFilled; // Блокируем кнопку, если не все обязательные поля заполнены
-        }
-
-        // Функция для генерации резюме
-        function generateResume() {
-            const form = document.getElementById('resumeForm');
-            const formData = new FormData(form);
-            const url = new URL('/generateResume', window.location.origin);
-
-            formData.forEach((value, key) => {
-                url.searchParams.append(key, value);
-            });
-
-            fetch(url)
-                .then(response => response.blob())
-                .then(blob => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = "Resume.docx"; // Указываем расширение .docx для скачивания
-                    link.click();
-                })
-                .catch(error => console.error('Error generating resume:', error));
-        }
-
-        // Обработчик события для предупреждения о выходе со страницы
-        window.addEventListener("beforeunload", function (event) {
-            const fields = document.querySelectorAll("input, textarea");
-            let formChanged = false;
-
-            fields.forEach(field => {
-                if (field.value.trim() !== "") {
-                    formChanged = true;
-                }
-            });
-
-            if (formChanged) {
-                const confirmationMessage = "Вы уверены, что хотите покинуть страницу? Все несохраненные данные будут потеряны.";
-                event.returnValue = confirmationMessage; // Для некоторых браузеров
-                return confirmationMessage; // Для других браузеров
-            }
-        });
-
-        // Проверка полей при изменении данных
-        document.addEventListener('input', checkRequiredFields);
-    </script>
-
 </head>
 <body>
-
     <div class="w3-container container">
         <h1><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Create Your Resume</h1>
 
-        <form id="resumeForm">
+        <form id="resumeForm" action="/resume/generate" method="get" target="_blank">
             <div class="form-group">
                 <label for="full-name"><i class="fa fa-user"></i> Full Name:</label>
                 <input type="text" id="full-name" name="fullName" placeholder="John Doe" required>
@@ -121,9 +56,72 @@
                 <input type="url" id="portfolio" name="portfolio" placeholder="https://yourportfolio.com">
             </div>
             <div class="submit-btn">
-                <button type="button" onclick="generateResume()" disabled><i class="fa fa-paper-plane"></i> Generate Resume</button>
+                <button type="submit" disabled><i class="fa fa-paper-plane"></i> Generate PDF</button>
             </div>
         </form>
     </div>
+<script>
+	//Сохранение данных формы в sessionStorage
+	function saveToSession() {
+	    const fields = document.querySelectorAll("#resumeForm input, #resumeForm textarea");
+	    fields.forEach(field => {
+	        sessionStorage.setItem(field.id, field.value);
+	    });
+	}
+	
+	// Восстановление данных формы из sessionStorage
+	function loadFromSession() {
+	    const fields = document.querySelectorAll("#resumeForm input, #resumeForm textarea");
+	    fields.forEach(field => {
+	        const savedValue = sessionStorage.getItem(field.id);
+	        if (savedValue) {
+	            field.value = savedValue;
+	        }
+	    });
+	    checkRequiredFields(); // Проверяем, нужно ли разблокировать кнопку
+	}
+	function checkRequiredFields() {
+	    const requiredFields = [
+	        document.getElementById('full-name'),
+	        document.getElementById('email'),
+	        document.getElementById('phone'),
+	        document.getElementById('address'),
+	        document.getElementById('summary'),
+	        document.getElementById('experience'),
+	        document.getElementById('education'),
+	        document.getElementById('skills')
+	    ];
+	
+	    const generateButton = document.querySelector('.submit-btn button');
+	    const allFilled = requiredFields.every(field => field.value.trim() !== '');
+	    generateButton.disabled = !allFilled; // Блокируем кнопку, если не все обязательные поля заполнены
+	}
+	// Обработчик события для предупреждения о выходе со страницы
+    window.addEventListener("beforeunload", function (event) {
+        const fields = document.querySelectorAll("input, textarea");
+        let formChanged = false;
+
+        fields.forEach(field => {
+            if (field.value.trim() !== "") {
+                formChanged = true;
+            }
+        });
+
+        if (formChanged) {
+            const confirmationMessage = "Are u sure u want to leave? All unsaved resume data will be saved until browser closing.";
+            event.returnValue = confirmationMessage; // Для некоторых браузеров
+            return confirmationMessage; // Для других браузеров
+        }
+	});
+
+ // События для сохранения и проверки полей
+    document.addEventListener('input', () => {
+        saveToSession();
+        checkRequiredFields();
+    });
+
+    // Загрузка данных при открытии страницы
+    window.addEventListener('DOMContentLoaded', loadFromSession);
+</script>
 </body>
 </html>

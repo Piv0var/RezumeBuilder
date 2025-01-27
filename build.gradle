@@ -29,22 +29,18 @@ dependencies {
 	implementation 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
     implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
-	implementation 'javax.servlet:javax.servlet-api:4.0.1'
-	implementation 'org.docx4j:docx4j:11.2.6'
-    implementation 'org.docx4j:docx4j-jaxb-impl:3.0.0'
-	implementation 'org.docx4j:docx4j:2.8.0'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'org.apache.poi:poi:5.2.3'
+    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	
     
 }
 
-	
-
-	
-}
 tasks.withType(JavaCompile) {
-    options.compilerArgs << "-parameters"
+    options.compilerArgs += '-parameters'
 }
 
 tasks.named('test') {

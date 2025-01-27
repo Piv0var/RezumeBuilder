@@ -1,1 +1,4 @@
-com.example.Model
+com.example
+com.example.controller
+com.example.model
+com.example.repository
